@@ -1,0 +1,124 @@
+{
+  "project_title": "LastZhood Admin Panel - Tactical Settings Dashboard",
+  "app_type": "dashboard",
+  "route": "/admin",
+  "file_type": "JavaScript (.js / .jsx)",
+  "language": "Turkish (UI copy in Turkish)",
+  "design_system": {
+    "font_families": {
+      "heading": "Barlow Condensed, sans-serif",
+      "body_and_mono": "IBM Plex Mono, monospace"
+    },
+    "colors": {
+      "ink": "#11150f",
+      "paper": "#e3e4d7",
+      "muted_ink": "#969c89",
+      "yellow": "#dcc475",
+      "sage": "#9cac8c",
+      "red": "#a85e51",
+      "border_line": "#6f79553b",
+      "card_bg": "#0d120ccd",
+      "card_border": "#a8b28140",
+      "status_saved": "#9cac8c",
+      "status_unsaved": "#dcc475"
+    },
+    "layout": {
+      "wrapper": "board-shell containing MapAtmosphere background layer",
+      "container_max_width": "max-w-4xl mx-auto px-4 py-8",
+      "card_style": "border border-[#a8b28140] bg-[#0d120ccd] p-6 shadow-xl backdrop-blur-md"
+    }
+  },
+  "authentication": {
+    "type": "Password-only",
+    "credential_source": "backend/.env ADMIN_PASSWORD; bcrypt hash in MongoDB",
+    "session": "JWTs in HttpOnly Secure cookies with revocable MongoDB sessions; CSRF proof only in origin/tab-scoped sessionStorage",
+    "login_flow": "If session is missing or invalid, show password-only login within board-shell"
+  },
+  "admin_fields": [
+    {
+      "key": "like_url",
+      "label": "Like bağlantısı",
+      "type": "url",
+      "placeholder": "https://x.com/...",
+      "test_id": "admin-like-url-input"
+    },
+    {
+      "key": "repost_url",
+      "label": "Repost (Retweet) Bağlantısı",
+      "type": "url",
+      "placeholder": "https://x.com/...",
+      "test_id": "admin-repost-url-input"
+    },
+    {
+      "key": "reply_url",
+      "label": "Reply (Yanıt) Bağlantısı",
+      "type": "url",
+      "placeholder": "https://x.com/...",
+      "test_id": "admin-reply-url-input"
+    },
+    {
+      "key": "reply_text",
+      "label": "Reply (Yanıt) İçerisinde Yazılacak Metin",
+      "type": "textarea",
+      "placeholder": "Örn: @LastZhood Ajan Yetkilendirmesi Başlatıldı...",
+      "test_id": "admin-reply-text-input"
+    },
+    {
+      "key": "claim_text",
+      "label": "CLAIM ON X Paylaşım Metni",
+      "type": "textarea",
+      "placeholder": "Örn: LastZhood Erken Erişim Ajan Lisansımı Talep Ettim...",
+      "test_id": "admin-claim-text-input"
+    }
+  ],
+  "api_endpoints": {
+    "login": {
+      "method": "POST",
+      "path": "/api/admin/login",
+      "payload": "{ \"password\": \"string\" }",
+      "response": "{ \"authenticated\": true, \"csrf_token\": \"session proof\" }; HttpOnly cookies; requires JSON + X-Admin-Client"
+    },
+    "get_config": {
+      "method": "GET",
+      "path": "/api/admin/settings",
+      "credentials": "include (HttpOnly cookies) + X-CSRF-Token",
+      "response": "{ settings: {like_url, repost_url, reply_text, reply_url, claim_text}, revision, updated_at }"
+    },
+    "save_config": {
+      "method": "PUT",
+      "path": "/api/admin/settings",
+      "credentials": "include (HttpOnly cookies) + X-CSRF-Token; HTTP(S) origin-independent",
+      "payload": "{ like_url, repost_url, reply_text, reply_url, claim_text, revision }",
+      "response": "{ settings, revision, updated_at }"
+    }
+  },
+  "key_features": [
+    "Parola Korumalı Yönetici Girişi",
+    "Görev Linkleri ve Metinlerinin Canlı Yönetimi",
+    "Kaydedilmiş / Kaydedilmemiş Değişiklik Durum Göstergesi (Unsaved/Saved status)",
+    "Tek Tıkla Ayarları Kaydetme (Save Button)",
+    "Güvenli Oturum Kapatma (Logout)",
+    "Mevcut Halk Açık Sitenin (/ Console / Home) Etkilenmeden Çalışmaya Devam Etmesi"
+  ],
+  "testing_attributes": {
+    "login_card": "admin-login-panel",
+    "password_input": "admin-password-input",
+    "login_button": "admin-login-button",
+    "login_error": "admin-login-error",
+    "header": "admin-header",
+    "logout_button": "admin-logout-button",
+    "save_button": "admin-save-button",
+    "status_badge": "admin-save-status"
+  },
+  "instructions_for_main_agent": [
+    "Create or update React admin component under frontend/src/pages/Admin.js or Admin.jsx",
+    "Ensure backend endpoint /api/admin/settings updates the configuration served to public users via /api/config",
+    "Keep existing site functionality and public layout intact",
+    "Add kebab-case data-testid attributes to all form controls, buttons, and status indicators"
+  ],
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "Use 2-3x generous spacing for tactical clarity.",
+    "Ensure high contrast on all input text and buttons against dark green/brown map background.",
+    "Include data-testid on every interactive element."
+  ]
+}

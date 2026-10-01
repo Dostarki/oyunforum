@@ -1,0 +1,57 @@
+{
+  "summary": "Executed full backend+frontend regression for new admin panel/campaign settings integration on public preview URL. Backend suites passed 33/34 with one auth-throttle failure. Frontend admin login/settings/public console flows mostly passed: password login, visibility toggle, session persistence, stale-revision recovery, network-failure unsaved state, width overflow checks, desktop/mobile screenshots, public task/share linkage, and console focus-refresh were validated.",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "/api/admin/login",
+        "issue": "Expected brute-force lockout (6th wrong password => 429) did not trigger on public endpoint; observed six 401 responses instead.",
+        "priority": "HIGH"
+      }
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "Admin initial-load retry simulation",
+        "issue": "Could not deterministically force and observe admin initial settings-load error screen in automation (route-abort attempt did not produce expected admin-load-error state).",
+        "affected_selectors": [
+          "[data-testid=admin-load-error]",
+          "[data-testid=admin-retry-button]"
+        ]
+      }
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_admin_api.py",
+    "/app/backend/tests/test_registry_api.py",
+    "/app/backend/tests/test_x_avatar_api.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Investigate /api/admin/login throttle path (reserve_login_attempt / request.client.host behavior behind preview proxy) so 6th failure reliably returns 429.",
+    "Re-verify lockout using repeated wrong-password requests from same client and inspect admin_login_attempts count evolution in Mongo.",
+    "Optionally add a deterministic integration test hook for forcing admin settings load failure to fully validate UI retry state in CI."
+  ],
+  "critical_code_review_comments": [
+    "Throttle likely depends on request.client.host stability; behind preview ingress it appears non-sticky, weakening brute-force protection effectiveness.",
+    "Admin security implementation is otherwise strong in tested scope: HttpOnly/Secure cookies, explicit Origin checks, stale revision protection, revocable sessions, and no secret leakage in public responses."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_admin_api.py",
+    "/app/scripts/restore_campaign_defaults.py",
+    "/app/scripts/cleanup_ui_test_agents.py",
+    "/app/test_reports/iteration_4.json"
+  ],
+  "success_rate": {
+    "backend": "97%",
+    "frontend": "88%"
+  },
+  "seed_data_creation": "Created one UI claim participant (handle_key=tadm90235) for POST ON X integration test; cleaned via /app/scripts/cleanup_ui_test_agents.py (deleted_test_agents=1).",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Artifacts captured under /app/test_reports/artifacts/iteration_4 including admin desktop (1920x800) and mobile (390x844) screenshots. Campaign values were restored to backend .env defaults using /app/scripts/restore_campaign_defaults.py; confirmed like_url back to https://x.com/LastZhood after focus-refresh test rollback. Public console focus-refresh check passed (task-like-link updated after admin save + focus event).",
+  "rca of the issue": "Throttle RCA (HIGH): Repro by sending six wrong-password POST /api/admin/login calls with valid Origin from the public URL. Expected: [401,401,401,401,401,429]. Actual: [401,401,401,401,401,401]. Most probable cause is identifier fragmentation from request.client.host behavior through ingress/proxy (hash key instability or varying source host), preventing count from crossing threshold for a single bucket. Mitigation: derive throttle key from a stable, trusted upstream identity (or session-independent deterministic key) and add telemetry logs for address+identifier to confirm bucket continuity."
+}
