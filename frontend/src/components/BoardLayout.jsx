@@ -11,7 +11,10 @@ export const BoardLayout = ({ children, stats, recent, online, config }) => {
     <MapAtmosphere count={stats?.count} />
     <header className="site-header">
       <Link to="/" className="site-logo" data-testid="home-logo-link" aria-label="LastZhood home">LastZhood<span className="logo-square" /></Link>
-      <a href="https://lastzhood.fun/play" target="_blank" rel="noopener noreferrer" className="nav-play-button" data-testid="nav-play-button"><Gamepad2 size={12} /><span>PLAY</span></a>
+      <div className="nav-play-wrap">
+        <span className="nav-play-status" data-testid="game-active-label"><i className="signal-dot" />GAME ACTIVE</span>
+        <a href="https://lastzhood.fun/play" target="_blank" rel="noopener noreferrer" className="nav-play-button" data-testid="nav-play-button"><Gamepad2 size={18} /><span>PLAY</span></a>
+      </div>
       <span className="header-center" data-testid="network-name">INDEPENDENT AGENT NETWORK <span>// EST. 2026</span></span>
       <div className="header-status"><span className="agent-count" data-testid="agent-count"><i className={online ? 'signal-dot' : 'signal-dot offline'} />{stats ? stats.count.toLocaleString('en-US') : '—'} <span>AGENTS ON THE GRID</span></span><span className="access-badge" data-testid="early-access-badge">EARLY ACCESS</span></div>
     </header>
